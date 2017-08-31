@@ -12,7 +12,7 @@ var express = require('express'),
 
 mongoose.Promise = global.Promise;
 var mongodbURI = "mongodb://araujopdro:Puertoric0@ds149743.mlab.com:49743/tcc-chroma-studio"
-mongoose.connect('localhost/tcc_server');
+mongoose.connect(mongodbURI);
 
 app.use(body_parser.urlencoded({ extended: true }));
 app.use(body_parser.json());
