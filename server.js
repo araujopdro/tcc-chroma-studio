@@ -24,7 +24,7 @@ app.use('/api', require('./routes/api'));
 var port = process.env.PORT || 3000
 
 //var server = app.listen(3000);
-server.listen(port, function() {
+var server = app.listen(port, function() {
     console.log("App is running on port " + port);
 });
 
