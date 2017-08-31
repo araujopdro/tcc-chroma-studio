@@ -35,14 +35,19 @@ console.log('Pudim de Leite 2');
 app.use(express.static('public'));
 
 
-var io = socket(server);
-io.on('connection', function(socket){
-	console.log('Connect socket', socket.id);
+const io = socket(server);
 
+io.on('connection', (socket) => {
+  console.log('Client connected');
+  socket.on('disconnect', () => console.log('Client disconnected'));
+});
+
+/*io.on('connection', function(socket){
+	console.log('Connect socket', socket.id);
 
 	// socket.on('pudim', function(data){
 	// 	console.log('pudim stuff');
 	// 	console.log(data);
 	// 	io.sockets.emit('pudim', data);
 	// });
-});
+});*/
