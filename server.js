@@ -21,7 +21,13 @@ app.use('/api', require('./routes/api'));
 
 
 // Start Server 
-var server = app.listen(3000);
+var port = process.env.PORT || 3000
+
+//var server = app.listen(3000);
+server.listen(port, function() {
+    console.log("App is running on port " + port);
+});
+
 console.log('Pudim de Leite 2');
 
 
