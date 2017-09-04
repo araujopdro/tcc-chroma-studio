@@ -39,14 +39,14 @@ io.on('connection', function(socket){
 
 	console.log('client connected, broadcasting, id: ' + serverInfo.clientId);
 
-	//Broadcast Emit to Everyone connected
-	socket.broadcast.emit('server_info');
-
 	for(i = 0; i < serverInfo.nOfPlayers; i++){
 		//Send info just for the current Socket
 		socket.emit('server_info', serverInfo);
-		console.log('send join info to new player');
+		console.log('send join info to new player ' + serverInfo.clientId);
 	}
+	
+	//Broadcast Emit to Everyone connected
+	socket.broadcast.emit('server_info');
 
 	socket.on('place_trap', function(_data){
 		console.log('place trap', JSON.stringify (_data));
