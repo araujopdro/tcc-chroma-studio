@@ -7,7 +7,7 @@ var express = require('express'),
     socket = require('socket.io'),
     
     body_parser = require('body-parser'),
-    shortid = require('shortid')
+    shortid = require('shortid');
 
 mongoose.Promise = global.Promise;
 var mongodbURI = "mongodb://araujopdro:Puertoric0@ds149743.mlab.com:49743/tcc-chroma-studio"
