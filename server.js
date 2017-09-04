@@ -35,13 +35,12 @@ var serverInfo = {
 
 io.on('connection', function(socket){
 	serverInfo.clientId = shortid.generate();
+	serverInfo.nOfPlayers++;
 
 	console.log('client connected, broadcasting, id: ' + serverInfo.clientId);
 
 	//Broadcast Emit to Everyone connected
 	socket.broadcast.emit('server_info');
-
-	serverInfo.nOfPlayers++;
 
 	for(i = 0; i < serverInfo.nOfPlayers; i++){
 		//Send info just for the current Socket
@@ -58,7 +57,7 @@ io.on('connection', function(socket){
 		console.log('client disconnected: '  + serverInfo.clientId);
 		serverInfo.nOfPlayers--;
 
-		socket.emit('server_info', serverInfo);
+		socket.broadcast.emit('server_info', serverInfo);
 	});
 
 })
