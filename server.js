@@ -16,23 +16,15 @@ mongoose.connect(mongodbURI);
 app.use(body_parser.urlencoded({ extended: true }));
 app.use(body_parser.json());
 
-
 // Routes
 app.use('/api', require('./routes/api'));
-
-
 
 var port = process.env.PORT || 3000;
 server.listen(port, function() {
     console.log("App is running on port " + port);
 });
 
-
-
-console.log('Pudim de Leite 2');
-
 app.use(express.static('public'));
-
 
 const io = socket(server);
 
@@ -51,13 +43,13 @@ io.on('connection', function(socket){
 		console.log('send join info to new player');
 	}
 
-	socket.on('place_trap', function(){
-		console.log('place trap');
-		socket.broadcast.emit('place_trap');
+	socket.on('place_trap', function(_data){
+		console.log('place trap', JSON.stringify (_data));
+		socket.emit('place_trap', _data);
 	});
 
 	socket.on('disconnect', function(){
-		console.log('client disconnected');
+		console.log('client disconnected: '  + thisClientId);
 		playerCount--;
 	});
 
