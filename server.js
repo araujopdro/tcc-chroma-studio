@@ -28,23 +28,24 @@ app.use(express.static('public'));
 
 const io = socket(server);
 
-var playerCount = 0;
-var playersOnlineInfo = {
+var serverInfo = {
+	"clientId": "sid",
 	"nOfPlayers": 0
 };
 
 io.on('connection', function(socket){
-	var thisClientId = shortid.generate();
+	serverInfo.clientId = shortid.generate();
 
-	console.log('client connected, broadcasting, id: ' + thisClientId);
+	console.log('client connected, broadcasting, id: ' + serverInfo.clientId);
 
-	socket.broadcast.emit('join');
+	//Broadcast Emit to Everyone connected
+	socket.broadcast.emit('server_info');
 
-	playerCount++;
-	playersOnlineInfo.nOfPlayers = playerCount;
+	serverInfo.nOfPlayers++;
 
-	for(i = 0; i < playerCount; i++){
-		socket.emit('join', playersOnlineInfo);
+	for(i = 0; i < serverInfo.nOfPlayers; i++){
+		//Send info just for the current Socket
+		socket.emit('server_info', serverInfo);
 		console.log('send join info to new player');
 	}
 
@@ -54,11 +55,10 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('disconnect', function(){
-		console.log('client disconnected: '  + thisClientId);
-		playerCount--;
-		
-		playersOnlineInfo.nOfPlayers = playerCount;
-		socket.emit('join', playersOnlineInfo);
+		console.log('client disconnected: '  + serverInfo.clientId);
+		serverInfo.nOfPlayers--;
+
+		socket.emit('server_info', serverInfo);
 	});
 
 })
