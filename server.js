@@ -45,7 +45,7 @@ io.on('connection', function(socket){
 
 	socket.on('place_trap', function(_data){
 		console.log('place trap', JSON.stringify (_data));
-		socket.emit('place_trap', _data);
+		socket.broadcast.emit('place_trap', _data);
 	});
 
 	socket.on('disconnect', function(){
