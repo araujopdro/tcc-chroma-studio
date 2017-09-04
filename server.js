@@ -29,6 +29,9 @@ app.use(express.static('public'));
 const io = socket(server);
 
 var playerCount = 0;
+var playersOnlineInfo = {
+	"nOfPlayers": 0
+};
 
 io.on('connection', function(socket){
 	var thisClientId = shortid.generate();
@@ -36,10 +39,12 @@ io.on('connection', function(socket){
 	console.log('client connected, broadcasting, id: ' + thisClientId);
 
 	socket.broadcast.emit('join');
+
 	playerCount++;
+	playersOnlineInfo.nOfPlayers = playerCount;
 
 	for(i = 0; i < playerCount; i++){
-		socket.emit('join');
+		socket.emit('join', playersOnlineInfo);
 		console.log('send join info to new player');
 	}
 
