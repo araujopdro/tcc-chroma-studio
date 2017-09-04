@@ -1,4 +1,3 @@
-/*
 // Dependencies
 var express = require('express'),
 	mongoose = require('mongoose'),
@@ -39,26 +38,30 @@ const io = socket(server);
 var clients = [];
 
 io.on('connection', function(socket){
-  console.log('a user connected: ' + socket.id);
-  clients.push(socket.id);
+	var thisClientId = shortid.generate();
 
-  socket.on('start', function(){
-    socket.emit('test_response', 'response');
-  });
+	console.log('client connected, broadcasting, id: ' + thisClientId);
 
-  socket.on('disconnect', function(){
-    console.log('user disconnected: ' + socket.id);
-  });
+	socket.broadcast.emit('join');
+	playerCount++;
 
-  socket.on('jump', function(data){
-    console.log('Action: ' + data);
-    console.log('Action: ' + data.action);
-    socket.emit('test_response', 'response');
-  });
+	for(i = 0; i < playerCount; i++){
+		socket.emit('join');
+		console.log('send join info to new player');
+	}
 
-  console.log(clients);
-});
-*/
+	socket.on('place_trap', function(){
+		console.log('place trap');
+		socket.broadcast.emit('place_trap');
+	});
+
+	socket.on('disconnect', function(){
+		console.log('client disconnected');
+		playerCount--;
+	});
+
+})
+
 // io.on('connection', (socket) => {
 //   	console.log('Client connected ' + socket.id);
 //   	socket.on('disconnect', () => console.log('Client disconnected '+socket.id));
@@ -79,7 +82,7 @@ io.on('connection', function(socket){
 	// });
 });*/
 
-var io = require('socket.io')(process.env.PORT || 3000);
+/*var io = require('socket.io')(process.env.PORT || 3000);
 var shortid = require('shortid')
 
 console.log('server started');
@@ -109,4 +112,4 @@ io.on('connection', function(socket){
 		playerCount--;
 	});
 
-})
+})*/
