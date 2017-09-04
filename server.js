@@ -35,7 +35,8 @@ app.use(express.static('public'));
 
 
 const io = socket(server);
-var clients = [];
+
+var playerCount = 0;
 
 io.on('connection', function(socket){
 	var thisClientId = shortid.generate();
