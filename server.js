@@ -52,25 +52,26 @@ io.on('connection', function(socket){
 	socket.broadcast.emit('server_info', serverInfo);
 	//////////////////////////////
 
-	socket.on('join_room', function(_data){
+	socket.on('create_room', function(_data){
+		console.log("Create Room");
+
 		var room_data = {};
-		if(rooms.length == 0){
-			console.log("Create Room");
-			room_data.roomId = "ROOM-"+shortid.generate();
-			room_data.clients = new Array();
-			room_data.clients.push(_data.clientId);
-			rooms.push(room_data);
-		}else{
-			console.log("Join Room");
-			console.log(rooms[0]);
-			room_data = rooms[0];
-			room_data.clients.push(_data.clientId);
-		}
+
+		room_data.roomId = "ROOM-"+shortid.generate();
+		room_data.host = _data.clientId;
+		room_data.clients = new Array();
+		rooms.push(room_data);
+	});
+
+	socket.on('join_room', function(_data){
+		console.log("Join Room");
+		
+		var room_data = rooms[0];
+		
+		room_data.clients.push(_data.clientId);
+
 		socket.join(room_data.roomId);
 		io.to(room_data.roomId).emit('joinned_room', room_data);
-		if(room_data.clients.length > 1){
-			rooms.splice(0, 1);
-		}
 	});
 
 	socket.on('place_trap', function(_data){
