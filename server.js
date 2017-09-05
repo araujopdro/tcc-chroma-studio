@@ -30,36 +30,61 @@ const io = socket(server);
 
 var serverInfo = {
 	"clientId": "sid",
-	"nOfPlayers": 0
+	"nOfClients": 0
 };
 
+var rooms = [];
+
 io.on('connection', function(socket){
+	//////ON CONNECTION////////////
 	serverInfo.clientId = shortid.generate();
-	serverInfo.nOfPlayers++;
+	serverInfo.nOfClients++;
 
 	console.log('client connected, broadcasting, id: ' + serverInfo.clientId);
 
-	for(i = 0; i < serverInfo.nOfPlayers; i++){
+	for(i = 0; i < serverInfo.nOfClients; i++){
 		//Send info just for the current Socket
 		socket.emit('server_info', serverInfo);
 		console.log('send join info to new player ' + serverInfo.clientId);
 	}
 	
-	//Broadcast Emit to Everyone connected
+	//Broadcast Emit to Everyone Connected
 	socket.broadcast.emit('server_info');
+	//////ON CONNECTION////////////
+
+	socket.on('join_room', function(_data){
+		var room_data = {};
+		if(rooms.length == 0){
+			console.log("Create Room");
+			room_data.roomId = "ROOM-"+shortid.generate();
+			room_data.clients = new Array();
+			room_data.clients.push(_data.clientId);
+		}else{
+			console.log("Join Room");
+			console.log(rooms[0]);
+			room_data = rooms[0];
+			rooms.splice(0, 1);
+
+			room_data.roomId = rooms[0].roomId;
+			room_data.clients.push(_data.clientId);
+		}
+		socket.join(room_data.roomId);
+		io.to(room_data.roomId).emit('joinned_room', room_data);
+	});
 
 	socket.on('place_trap', function(_data){
 		console.log('place trap', JSON.stringify (_data));
 		socket.broadcast.emit('place_trap', _data);
 	});
 
+	//////ON DISCONNECTION////////////
 	socket.on('disconnect', function(){
 		console.log('client disconnected: '  + serverInfo.clientId);
-		serverInfo.nOfPlayers--;
+		serverInfo.nOfClients--;
 
 		socket.broadcast.emit('server_info', serverInfo);
 	});
-
+	//////ON DISCONNECTION////////////
 })
 
 // io.on('connection', (socket) => {
@@ -69,7 +94,7 @@ io.on('connection', function(socket){
 //   	socket.on('get_id', function(data){
 // 		console.log(data);
 // 		io.sockets.emit('get_id', data);
-// 	});
+// 	}); 		Márcia .. parcela dese 600 + 3 x 366,09
 // });
 
 /*io.on('connection', function(socket){
