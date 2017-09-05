@@ -42,15 +42,17 @@ io.on('connection', function(socket){
 
 	console.log('client connected, broadcasting, id: ' + serverInfo.clientId);
 
-	for(i = 0; i < serverInfo.nOfClients; i++){
-		//Send info just for the current Socket
-		socket.emit('server_info', serverInfo);
-		console.log('send join info to new player ' + serverInfo.clientId);
-	}
+	socket.emit('server_info', serverInfo);
 	
-	//Broadcast Emit to Everyone Connected
-	socket.broadcast.emit('server_info');
-	//////ON CONNECTION////////////
+	// for(i = 0; i < serverInfo.nOfClients; i++){
+	// 	//Send info just for the current Socket
+	// 	socket.emit('server_info', serverInfo);
+	// 	console.log('send join info to new player ' + serverInfo.clientId);
+	// }
+	
+	// //Broadcast Emit to Everyone Connected
+	// socket.broadcast.emit('server_info', serverInfo);
+	//////////////////////////////
 
 	socket.on('join_room', function(_data){
 		var room_data = {};
