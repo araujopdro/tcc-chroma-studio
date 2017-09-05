@@ -79,7 +79,7 @@ io.on('connection', function(socket){
 
 	//////ON DISCONNECTION////////////
 	socket.on('disconnect', function(){
-		console.log('client disconnected: '  + serverInfo.clientId);
+		console.gilog('client disconnected: '  + serverInfo.clientId);
 		serverInfo.nOfClients--;
 
 		socket.broadcast.emit('server_info', serverInfo);
