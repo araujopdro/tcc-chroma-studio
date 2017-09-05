@@ -69,7 +69,7 @@ io.on('connection', function(socket){
 			room_data.clients.push(_data.clientId);
 		}
 		socket.join(room_data.roomId);
-		io.to(room_data.roomId).emit('joinned_room', room_data);
+		io.to(room_data.roomId).emit('joinned__room', room_data);
 	});
 
 	socket.on('place_trap', function(_data){
