@@ -68,7 +68,9 @@ io.on('connection', function(socket){
 		}
 		socket.join(room_data.roomId);
 		io.to(room_data.roomId).emit('joinned_room', room_data);
-		rooms.splice(0, 1);
+		if(room_data.clients.length > 1){
+			rooms.splice(0, 1);
+		}
 	});
 
 	socket.on('place_trap', function(_data){
