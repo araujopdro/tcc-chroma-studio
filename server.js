@@ -46,7 +46,7 @@ io.on('connection', function(socket){
 	}
 	
 	//Broadcast Emit to Everyone connected
-	socket.broadcast.emit('server_info');
+	socket.broadcast.emit('server_info', serverInfo);
 
 	socket.on('place_trap', function(_data){
 		console.log('place trap', JSON.stringify (_data));
