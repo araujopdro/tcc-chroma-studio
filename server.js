@@ -43,7 +43,8 @@ io.on('connection', function(socket){
 	console.log('client connected, broadcasting, id: ' + serverInfo.clientId);
 
 	socket.emit('server_info', serverInfo);
-	
+	socket.broadcast.emit('server_info', serverInfo);
+
 	// for(i = 0; i < serverInfo.nOfClients; i++){
 	// 	//Send info just for the current Socket
 	// 	socket.emit('server_info', serverInfo);
@@ -61,6 +62,7 @@ io.on('connection', function(socket){
 			room_data.roomId = "ROOM-"+shortid.generate();
 			room_data.clients = new Array();
 			room_data.clients.push(_data.clientId);
+			rooms.push(room_data);
 		}else{
 			console.log("Join Room");
 			console.log(rooms[0]);
