@@ -53,21 +53,27 @@ io.on('connection', function(socket){
 	//////////////////////////////
 
 	socket.on('create_room', function(_data){
-		console.log("Create Room");
-
-		var room_data = {};
-
-		room_data.roomId = "ROOM-"+shortid.generate();
-		room_data.host = _data.clientId;
-		room_data.clients = new Array();
-		rooms.push(room_data);
+		CreateRoom(_data);
 	});
 
 	socket.on('join_room', function(_data){
 		console.log("Join Room");
+		var room_data;
+		var foundRoom = false;
+		for(var i = 0; i < rooms.length; i++){
+			if(rooms[i].clients.length < 2 && !foundRoom){
+				room_data = rooms[0];
+				foundRoom = true;
+			}
+		}
 		
-		var room_data = rooms[0];
-		
+		if(!foundRoom){
+			console.log("Couldnt Find Room");
+			CreateRoom(_data);
+		}
+
+		room_data = rooms[rooms.length - 1];
+
 		room_data.clients.push(_data.clientId);
 
 		socket.join(room_data.roomId);
@@ -76,7 +82,7 @@ io.on('connection', function(socket){
 
 	socket.on('place_trap', function(_data){
 		console.log('place trap', JSON.stringify (_data));
-		socket.broadcast.emit('place_trap', _data);
+		io.to(_data).emit('place_trap', _data);
 	});
 
 	//////ON DISCONNECTION////////////
@@ -88,6 +94,18 @@ io.on('connection', function(socket){
 	});
 	//////ON DISCONNECTION////////////
 })
+
+function CreateRoom(_data){
+	console.log("Create Room");
+
+	var room_data = {};
+
+	room_data.roomId = "ROOM-"+shortid.generate();
+	room_data.host = _data.clientId;
+	room_data.clients = new Array();
+	rooms.push(room_data);
+}
+
 
 // io.on('connection', (socket) => {
 //   	console.log('Client connected ' + socket.id);
