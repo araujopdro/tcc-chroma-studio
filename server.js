@@ -82,7 +82,7 @@ io.on('connection', function(socket){
 
 	socket.on('place_trap', function(_data){
 		console.log('place trap', JSON.stringify (_data));
-		io.to(_data).emit('place_trap', _data);
+		io.to(_data.roomId).emit('place_trap', _data);
 	});
 
 	//////ON DISCONNECTION////////////
