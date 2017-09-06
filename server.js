@@ -90,6 +90,10 @@ io.on('connection', function(socket){
 		console.log('client disconnected: '  + serverInfo.clientId);
 		serverInfo.nOfClients--;
 
+		if(serverInfo.nOfClients == 0){
+			rooms = [];
+		}
+
 		socket.broadcast.emit('server_info', serverInfo);
 	});
 	//////ON DISCONNECTION////////////
