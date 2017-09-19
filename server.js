@@ -9,23 +9,39 @@ var express = require('express'),
     body_parser = require('body-parser'),
     shortid = require('shortid');
 
-mongoose.Promise = global.Promise;
-var mongodbURI = "mongodb://araujopdro:Puertoric0@ds149743.mlab.com:49743/tcc-chroma-studio"
-mongoose.connect(mongodbURI);
+//mongoose.Promise = global.Promise;
+//var mongodbURI = "mongodb://araujopdro:Puertoric0@ds149743.mlab.com:49743/tcc-chroma-studio"
+//mongoose.connect(mongodbURI);
 
 app.use(body_parser.urlencoded({ extended: true }));
 app.use(body_parser.json());
 
 // Routes
-app.use('/api', require('./routes/api'));
-
 var port = process.env.PORT || 3000;
 server.listen(port, function() {
     console.log("App is running on port " + port);
 });
 
-app.use(express.static('public'));
+function handleError(res, reason, message, code) {
+  console.log("ERROR: " + reason);
+  res.status(code || 500).json({"error": message});
+}
 
+app.post("/api/login", function(req, res) {
+	console.log("POST STUFF");
+	var authHeader = req.headers.authorization;
+	console.log(authHeader);
+	if(authHeader == "userpass"){
+		console.log("Ok");
+		res.status(200).json({"user": "name", "pass": "pass"});
+	}else{
+		console.log("Error");
+		res.error(400).send({message: 'This is an error!'});
+	};
+});
+
+
+//////IO STUFF/////////////
 const io = socket(server);
 
 var serverInfo = {
