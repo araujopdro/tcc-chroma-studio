@@ -3,33 +3,45 @@ var express = require('express'),
 	mongoose = require('mongoose'),
 	app = express(),
 	server = require('http').createServer(app),
-	mongodb = require('mongodb'),
+
     socket = require('socket.io'),
     
     body_parser = require('body-parser'),
     shortid = require('shortid');
 
-////
+app.use(body_parser.urlencoded({ extended: true }));
+app.use(body_parser.json());
+
+var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }, 
+                replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } },
+                useMongoClient: true
+            };       
+ 
+var mongodbUri = 'mongodb://araujo.pdro:Puertoric0@ds119014.mlab.com:19014/heroku_76qnqj48';
+ 
+mongoose.connect(mongodbUri, options);
+var conn = mongoose.connection;             
+ 
+conn.on('error', console.error.bind(console, 'connection error:'));  
+ 
+conn.once('open', function() {
+  // Wait for the database connection to establish, then start the app.                         
+});
+
+
 //Schema
-var userSchema = new mongoose.Schema({
+var Schema = mongoose.Schema;
+
+var UserSchema = new Schema({
 	user: String,
 	avatar: Number
 });
 ////
 
-app.use(body_parser.urlencoded({ extended: true }));
-app.use(body_parser.json());
+//Models
+var UserModel = mongoose.model('UserModel', UserSchema);
 
-
-var db;
-
-
-mongoose.Promise = global.Promise;
-var mongodbURI = "mongodb://araujo.pdro:Puertoric0@ds119014.mlab.com:19014/heroku_76qnqj48";
-//var mongodbURI = "mongodb://araujo.pdro:Puertoric0@ds149743.mlab.com:49743/tcc-chroma-studio"
-mongoose.connect(mongodbURI, { useMongoClient: true });
-
-var User = mongoose.model("User", userSchema);
+////
 
 
 // Routes
@@ -60,10 +72,12 @@ app.post("/api/login", function(req, res) {
 	if(authHeader){
 		console.log("Ok");
 		userData.playerId = authHeader;
-		
-		var new_user = new User(req.body);
-		new_user.save(function (err) {if (err) console.log ('Error on save!')});
-		console.log(mongoose);
+
+		var new_user = new UserModel(req.body);
+		new_user.save(function (err) {
+			if (err) console.log ('Error on save!');
+			console.log(save);
+		});
 
 		res.status(200).json(userData);
 	}else{
