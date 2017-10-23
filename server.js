@@ -10,21 +10,20 @@ var express = require('express'),
     shortid = require('shortid');
 
 app.use(body_parser.urlencoded({ extended: true }));
-app.use(body_parser.json());
-
-var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }, 
-                replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } },
-                useMongoClient: true
-            };       
+app.use(body_parser.json()); 
  
-var mongodbUri = 'mongodb://araujo.pdro:Puertoric0@ds119014.mlab.com:19014/heroku_76qnqj48';
+var options = {
+   useMongoClient: true
+};
+
+var mongodbUri = 'mongodb://player_user:test@ds119014.mlab.com:19014/heroku_76qnqj48';
  
 mongoose.connect(mongodbUri, options);
-var conn = mongoose.connection;             
+var db = mongoose.connection;             
  
-conn.on('error', console.error.bind(console, 'connection error:'));  
+db.on('error', console.error.bind(console, 'connection error:'));  
  
-conn.once('open', function() {
+db.once('open', function() {
   // Wait for the database connection to establish, then start the app.                         
 });
 
@@ -34,7 +33,8 @@ var Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
 	user: String,
-	avatar: Number
+	avatar: Number,
+	points: Number
 });
 ////
 
@@ -47,7 +47,7 @@ var UserModel = mongoose.model('UserModel', UserSchema);
 // Routes
 var port = process.env.PORT || 3000;
 server.listen(port, function() {
-    console.log("App is running on port " + port);
+	console.log("Port: " + port);
 });
 
 function handleError(res, reason, message, code) {
@@ -56,36 +56,43 @@ function handleError(res, reason, message, code) {
 }
 
 
-var userData = {
-	"playerId": "A", 
-	"clientId": "B"
-};
-
 app.post("/api/login", function(req, res) {
 	console.log("POST STUFF");
 	
 	var authHeader = req.headers.authorization;
-	
-	console.log(req.body);
-	console.log(authHeader);
 
 	if(authHeader){
-		console.log("Ok");
-		userData.playerId = authHeader;
-
 		var new_user = new UserModel(req.body);
+
 		new_user.save(function (err) {
 			if (err) console.log ('Error on save!');
-			console.log(save);
+			console.log("save");
 		});
 
-		res.status(200).json(userData);
+		res.status(200).json(new_user);
 	}else{
 		console.log("Error");
 		res.error(400).send({message: 'This is an error!'});
 	};
 });
 
+app.get("/api/all_users", function(req, res) {
+	console.log("GET ALL USERS");
+
+	UserModel.find({}, function(err, users){
+		res.status(200).json(users);
+	});
+});
+
+
+app.get("/api/users_by_score", function(req, res) {
+	console.log("GET ALL USERS");
+
+	UserModel.find({}, function(err, users){
+		users.sort(sort_by('points', true, parseInt));
+		res.status(200).json(users);
+	});
+});
 
 //////IO STUFF/////////////
 const io = socket(server);
@@ -114,11 +121,16 @@ io.on('connection', function(socket){
 	socket.broadcast.emit('server_info', serverInfo);
 	//////////////////////////////
 
-	socket.on('create_room', function(_data){
-		CreateRoom(_data);
+	socket.on('beep', function(){
+		console.log('Boop3');
 	});
 
-	socket.on('join_room', function(_data){
+	socket.on('runner_round', function(_data){
+		socket.emit('runner_round', serverInfo);
+		console.log('Runner Won');
+	});
+
+	socket.on('room_manage', function(_data){
 		console.log("Join Room");
 		var room_data;
 		var foundRoom = false;
@@ -131,21 +143,30 @@ io.on('connection', function(socket){
 		
 		if(!foundRoom){
 			console.log("Couldnt Find Room");
-			CreateRoom(_data);
+			CreateRoom();
 		}
 
 		room_data = rooms[rooms.length - 1];
 
+		console.log(_data)
 		room_data.clients.push(_data.clientId);
 
 		socket.join(room_data.roomId);
+		console.log(room_data.roomId);
 		io.to(room_data.roomId).emit('joinned_room', room_data);
 	});
+
+
+
 
 	socket.on('place_trap', function(_data){
 		console.log('place trap', JSON.stringify (_data));
 		io.to(_data.roomId).emit('place_trap', _data);
 	});
+
+
+
+
 
 	//////ON DISCONNECTION////////////
 	socket.on('disconnect', function(){
@@ -161,17 +182,28 @@ io.on('connection', function(socket){
 	//////ON DISCONNECTION////////////
 })
 
-function CreateRoom(_data){
+function CreateRoom(){
 	console.log("Create Room");
 
 	var room_data = {};
 
 	room_data.roomId = "ROOM-"+shortid.generate();
-	room_data.host = _data.clientId;
 	room_data.clients = new Array();
 	rooms.push(room_data);
 }
 
+var sort_by = function(field, reverse, primer){
+
+   var key = primer ? 
+       function(x) {return primer(x[field])} : 
+       function(x) {return x[field]};
+
+   reverse = !reverse ? 1 : -1;
+
+   return function (a, b) {
+       return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+     } 
+}
 
 // io.on('connection', (socket) => {
 //   	console.log('Client connected ' + socket.id);
