@@ -155,7 +155,9 @@ io.on('connection', function(socket){
 
 		socket.join(room_data.roomId);
 		console.log(room_data.roomId);
-		io.to(room_data.roomId).emit('joinned_room', room_data);
+		if(room_data.clients.length == 2){
+			io.to(room_data.roomId).emit('joinned_room', room_data);
+		}
 	});
 
 
