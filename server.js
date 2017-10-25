@@ -145,7 +145,7 @@ io.on('connection', function(socket){
 			console.log("Couldnt Find Room");
 			CreateRoom();
 		}else{
-			console.log("Join Room")
+			console.log("Join Room");
 		}
 
 		room_data = rooms[rooms.length - 1];
@@ -157,6 +157,8 @@ io.on('connection', function(socket){
 		console.log(room_data.roomId);
 		if(room_data.clients.length == 2){
 			io.to(room_data.roomId).emit('joinned_room', room_data);
+		}else{
+			io.to(room_data.roomId).emit('host');
 		}
 	});
 
