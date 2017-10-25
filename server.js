@@ -121,8 +121,9 @@ io.on('connection', function(socket){
 	socket.broadcast.emit('server_info', serverInfo);
 	//////////////////////////////
 
-	socket.on('jump', function(){
-		console.log('Boop3');
+	socket.on('jump', function(_data){
+		console.log('Jump');
+		socket.broadcast.to(_data.roomId).emit('jump');
 	});
 
 	socket.on('runner_round', function(_data){
