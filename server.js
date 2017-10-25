@@ -122,7 +122,7 @@ io.on('connection', function(socket){
 	//////////////////////////////
 
 	socket.on('jump', function(_data){
-		console.log('Jump');
+		console.log('Ju mp');
 		socket.broadcast.to(_data.roomId).emit('jump');
 	});
 
