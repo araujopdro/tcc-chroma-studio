@@ -150,7 +150,7 @@ io.on('connection', function(socket){
 
 		room_data = rooms[rooms.length - 1];
 
-		console.log(_data);
+		console.log(_data.clientId);
 		room_data.clients.push(_data.clientId);
 
 		socket.join(room_data.roomId);
