@@ -121,7 +121,7 @@ io.on('connection', function(socket){
 	socket.broadcast.emit('server_info', serverInfo);
 	//////////////////////////////
 
-	socket.on('beep', function(){
+	socket.on('jump', function(){
 		console.log('Boop3');
 	});
 
@@ -129,16 +129,10 @@ io.on('connection', function(socket){
 		socket.emit('runner_round', serverInfo);
 		console.log('Runner Won');
 	});
-	
-	var room_data;
-
-	socket.on('runner_jumped'), function(_data){
-		io.to(room_data.roomId).emit('runner_jumped');
-	});
 
 	socket.on('room_manage', function(_data){
 		console.log("Join Room");
-		
+		var room_data;
 		var foundRoom = false;
 		for(var i = 0; i < rooms.length; i++){
 			if(rooms[i].clients.length < 2 && !foundRoom){
