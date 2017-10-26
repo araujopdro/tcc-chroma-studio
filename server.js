@@ -122,8 +122,13 @@ io.on('connection', function(socket){
 	//////////////////////////////
 
 	socket.on('jump', function(_data){
-		console.log('Ju mp');
+		console.log('Jump');
 		socket.broadcast.to(_data.roomId).emit('jump');
+	});
+
+	socket.on('trap', function(_data){
+		console.log('Trap');
+		socket.broadcast.to(_data.roomId).emit('trap');
 	});
 
 	socket.on('runner_round', function(_data){
@@ -155,7 +160,9 @@ io.on('connection', function(socket){
 		room_data.clients.push(_data.clientId);
 
 		socket.join(room_data.roomId);
+		
 		console.log(room_data.roomId);
+
 		if(room_data.clients.length == 2){
 			io.to(room_data.roomId).emit('joinned_room', room_data);
 		}else{
