@@ -187,9 +187,10 @@ io.on('connection', function(socket){
 		console.log('client disconnected: '  + serverInfo.clientId);
 		serverInfo.nOfClients--;
 
-		if(serverInfo.nOfClients < 0){
-			serverInfo.nOfClients == 0;
+		if(serverInfo.nOfClients =< 0){
+			serverInfo.nOfClients = 0;
 			rooms = [];
+			console.log("reset");
 		}
 
 		socket.broadcast.emit('server_info', serverInfo);
