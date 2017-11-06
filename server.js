@@ -24,6 +24,7 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));  
  
 db.once('open', function() {
+	console.log("db open")
   // Wait for the database connection to establish, then start the app.                         
 });
 
@@ -163,7 +164,7 @@ io.on('connection', function(socket){
 		
 		console.log(room_data.roomId);
 
-		if(room_data.clients.length == 2){
+		if(room_data.clients.length == 2 || port == 3000){
 			io.to(room_data.roomId).emit('joinned_room', room_data);
 		}else{
 			io.to(room_data.roomId).emit('host');
@@ -187,10 +188,9 @@ io.on('connection', function(socket){
 		console.log('client disconnected: '  + serverInfo.clientId);
 		serverInfo.nOfClients--;
 
-		if(serverInfo.nOfClients =< 0){
+		if(serverInfo.nOfClients <= 0){
 			serverInfo.nOfClients = 0;
 			rooms = [];
-			console.log("reset");
 		}
 
 		socket.broadcast.emit('server_info', serverInfo);
