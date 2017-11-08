@@ -85,6 +85,26 @@ app.get("/api/all_users", function(req, res) {
 	});
 });
 
+app.get("/api/all_users/:id", function(req, res) {
+	console.log("GET ALL USERS: " + req.params.id);
+	UserModel.find({}, function(err, users){
+		console.log(users.length);
+		var _user;
+		for (var i = 0; i < users.length; i++) {
+		    if (users[i].user == req.params.id){
+		    	console.log(users[i].user);
+		    	console.log(req.params.id);
+		    	_user = users[i];
+		    }
+		}
+		if(_user == undefined){
+			res.status(400).send({message: 'This is an error!'});
+		}else{
+			res.status(200).json(_user);
+		}
+	});
+});
+
 
 app.get("/api/users_by_score", function(req, res) {
 	console.log("GET ALL USERS");
