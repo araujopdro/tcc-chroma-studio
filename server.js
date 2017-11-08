@@ -24,7 +24,7 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));  
  
 db.once('open', function() {
-	console.log("db open")
+	console.log("db open s7");
   // Wait for the database connection to establish, then start the app.                         
 });
 
@@ -151,6 +151,11 @@ io.on('connection', function(socket){
 		console.log('Trap');
 		socket.broadcast.to(_data.roomId).emit('trap');
 	});
+
+	socket.on('runner_dead', function(_data){
+		console.log('runner is dead');
+		socket.broadcast.to(_data.roomId).emit('runner_dead');
+	});	
 
 	socket.on('runner_round', function(_data){
 		socket.emit('runner_round', serverInfo);
