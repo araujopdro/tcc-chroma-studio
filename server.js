@@ -152,13 +152,13 @@ io.on('connection', function(socket){
 		socket.broadcast.to(_data.roomId).emit('trap');
 	});
 
-	socket.on('runner_dead', function(_data){
+	socket.on('runner_hit_trap', function(_data){
 		console.log('runner is dead');
-		socket.broadcast.to(_data.roomId).emit('runner_dead');
+		socket.broadcast.to(_data.roomId).emit('runner_is_dead');
 	});	
 
 	socket.on('runner_round', function(_data){
-		socket.emit('runner_round', serverInfo);
+		socket.broadcast.to(_data.roomId).emit('runner_round');
 		console.log('Runner Won');
 	});
 
