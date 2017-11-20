@@ -194,7 +194,7 @@ io.on('connection', function(socket){
 			io.to(room_data.roomId).emit('joinned_room', room_data);
 		}else{
 			console.log("host");
-			io.to(room_data.roomId).emit('host');
+			io.to(room_data.roomId).emit('host', room_data);
 		}
 	});
 
