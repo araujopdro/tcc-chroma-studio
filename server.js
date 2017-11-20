@@ -193,8 +193,8 @@ io.on('connection', function(socket){
 			console.log("joinroom");
 			var timeInMs = Date.now();
 			console.log(timeInMs);
-
-			room_data.timeStarted = parseInt(timeInMs);
+			
+			room_data.timeStarted = timeInMs;
 			io.to(room_data.roomId).emit('joinned_room', room_data);
 		}else{
 			console.log("host");
