@@ -191,6 +191,8 @@ io.on('connection', function(socket){
 
 		if(room_data.clients.length == 2 || port == 3000){
 			console.log("joinroom");
+			var timeInMs = Date.now();
+			console.log(timeInMs);
 			io.to(room_data.roomId).emit('joinned_room', room_data);
 		}else{
 			console.log("host");
