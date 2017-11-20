@@ -190,8 +190,10 @@ io.on('connection', function(socket){
 		console.log(room_data.roomId);
 
 		if(room_data.clients.length == 2 || port == 3000){
+			console.log("joinroom");
 			io.to(room_data.roomId).emit('joinned_room', room_data);
 		}else{
+			console.log("host");
 			io.to(room_data.roomId).emit('host');
 		}
 	});
