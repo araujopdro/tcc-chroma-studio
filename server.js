@@ -163,7 +163,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('room_manage', function(_data){
-		console.log("Join Room");
+		console.log("RoomManage");
 		var room_data;
 		var foundRoom = false;
 		for(var i = 0; i < rooms.length; i++){
