@@ -124,6 +124,8 @@ var serverInfo = {
 };
 
 var rooms = [];
+var clientsInRooms = [];
+var rooms_status = [];
 
 io.on('connection', function(socket){
 	//////ON CONNECTION////////////
@@ -183,7 +185,10 @@ io.on('connection', function(socket){
 		room_data = rooms[rooms.length - 1];
 
 		console.log(_data.clientId);
-		room_data.clients.push(_data.clientId);
+
+		room_data.clients.push(_data.playerId);
+
+		clientsInRooms.push({"clientId": _data.clientId, "roomId": room_data.roomId})
 
 		socket.join(room_data.roomId);
 		
@@ -193,7 +198,7 @@ io.on('connection', function(socket){
 			console.log("joinroom");
 			var timeInMs = Date.now();
 			console.log(timeInMs);
-			
+
 			room_data.timeStarted = timeInMs;
 			io.to(room_data.roomId).emit('joinned_room', room_data);
 		}else{
@@ -202,21 +207,22 @@ io.on('connection', function(socket){
 		}
 	});
 
-
-
-
 	socket.on('place_trap', function(_data){
 		console.log('place trap', JSON.stringify (_data));
 		io.to(_data.roomId).emit('place_trap', _data);
 	});
 
-
-
-
-
 	//////ON DISCONNECTION////////////
 	socket.on('disconnect', function(){
 		console.log('client disconnected: '  + serverInfo.clientId);
+		for(var i = 0; i <clientsInRooms.length; i++){
+			if(clientsInRooms[i].clientId == serverInfo.clientId){
+				console.log("Was In A Room - Notify Opponent");
+				io.to(clientsInRooms[i].roomId).emit('opponent_disconnected');
+			}
+		}
+
+
 		serverInfo.nOfClients--;
 
 		if(serverInfo.nOfClients <= 0){
