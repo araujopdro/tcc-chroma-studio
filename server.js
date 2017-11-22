@@ -150,8 +150,8 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('trap', function(_data){
-		console.log('Trap');
-		socket.broadcast.to(_data.roomId).emit('trap');
+		console.log('Trap: '+_data.trapType);
+		socket.broadcast.to(_data.roomId).emit('trap', _data.trapType);
 	});
 
 	socket.on('runner_hit_trap', function(_data){
