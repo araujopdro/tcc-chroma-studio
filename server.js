@@ -165,6 +165,11 @@ io.on('connection', function(socket){
 		console.log('Runner Won');
 	});
 
+	socket.on('master_round', function(_data){
+		io.to(_data.roomId).emit('master_round');
+		console.log('Runner Won');
+	});
+
 	socket.on('room_manage', function(_data){
 		console.log("RoomManage");
 		var room_data;
