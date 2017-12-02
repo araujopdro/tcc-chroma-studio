@@ -224,7 +224,7 @@ io.on('connection', function(socket){
 		for(var i = 0; i <clientsInRooms.length; i++){
 			if(clientsInRooms[i].clientId == serverInfo.clientId){
 				console.log("Was In A Room - Notify Opponent");
-				socket.broadcast.to(clientId).emit('you_disconnected');
+				socket.broadcast.to(serverInfo.clientId).emit('you_disconnected');
 				socket.broadcast.to(clientsInRooms[i].roomId).emit('opponent_disconnected');
 			}
 		}
