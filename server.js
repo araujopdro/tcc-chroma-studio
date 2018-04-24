@@ -109,7 +109,7 @@ app.get("/api/all_users/:id", function(req, res) {
 		console.log(users.length);
 		var _user;
 		for (var i = 0; i < users.length; i++) {
-		    if (users[i].user == req.params.id){
+		    if (users[i]._id == req.params.id){
 		    	console.log(users[i]._id);
 		    	console.log(users[i].user);
 		    	console.log(req.params.id);
