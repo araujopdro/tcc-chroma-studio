@@ -89,7 +89,7 @@ app.get("/api/delete_users", function(req, res) {
 app.get("/api/delete_users/:id", function(req, res) {
 	console.log("DELETE USER: " + req.params.id);
 
-	UserModel.find({}, function(err, users){
+	UserModel.remove({"_id": ObjectId(req.params.id)}, function(err, users){
 		res.status(200).json(users);
 	});
 });
