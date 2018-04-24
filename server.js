@@ -77,6 +77,24 @@ app.post("/api/login", function(req, res) {
 	};
 });
 
+
+app.get("/api/delete_users", function(req, res) {
+	console.log("DELETE ALL USERS");
+
+	UserModel.remove({}, function(err, users){
+		res.status(200).json(users);
+	});
+});
+
+app.get("/api/delete_users/:id", function(req, res) {
+	console.log("DELETE USER: " + req.params.id);
+
+	UserModel.find({}, function(err, users){
+		res.status(200).json(users);
+	});
+});
+
+
 app.get("/api/all_users", function(req, res) {
 	console.log("GET ALL USERS");
 
@@ -86,12 +104,13 @@ app.get("/api/all_users", function(req, res) {
 });
 
 app.get("/api/all_users/:id", function(req, res) {
-	console.log("GET ALL USERS: " + req.params.id);
+	console.log("GET USER: " + req.params.id);
 	UserModel.find({}, function(err, users){
 		console.log(users.length);
 		var _user;
 		for (var i = 0; i < users.length; i++) {
 		    if (users[i].user == req.params.id){
+		    	console.log(users[i]._id);
 		    	console.log(users[i].user);
 		    	console.log(req.params.id);
 		    	_user = users[i];
