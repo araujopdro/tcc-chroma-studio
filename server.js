@@ -156,7 +156,7 @@ io.on('connection', function(socket){
 
 	//for(i = 0; i < serverInfo.nOfClients; i++){
 		//Send info just for the current Socket
-	//	socket.emit('server_info', serverInfo);
+	socket.emit('user_id', serverInfo);
 	//	console.log('send join info to new player');
 	//}
 	
