@@ -222,9 +222,11 @@ io.on('connection', function(socket){
 
 	//////ON DISCONNECTION////////////
 	socket.on('disconnect', function(_data){
-		console.log('client disconnected: '+ _data.playerSocketId);
+		var data = _data;
+
 		for(var i = 0; i < serverInfo.clients.length; i++){
-			if(serverInfo.clients[i] == _data.playerSocketId){
+			if(serverInfo.clients[i] == data.playerSocketId){
+				console.log("Clear Client");
 				serverInfo.clients.splice(i, 1);
 				serverInfo.nOfClients--;
 				if(serverInfo.nOfClients <= 0){
@@ -234,7 +236,6 @@ io.on('connection', function(socket){
 				// socket.broadcast.to(clientsInRooms[i].roomId).emit('opponent_disconnected');
 			}
 		}
-
 		socket.emit('server_info', serverInfo);
 	});
 	//////ON DISCONNECTION////////////
