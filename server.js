@@ -148,7 +148,7 @@ var rooms_status = [];
 io.on('connection', function(socket){
 	//////ON CONNECTION////////////
 	var clientId = shortid.generate();
-
+	
 	serverInfo.clients.push(clientId);
 
 	console.log('client connected, broadcasting, id: ' + clientId);
@@ -219,12 +219,6 @@ io.on('connection', function(socket){
 	// 	io.to(_data.roomId).emit('place_trap', _data);
 	// });
 
-	socket.on('reconnect', function(_data){
-		var data = _data;
-		console.log("reco: "+data);
-		io.sockets.emit('server_info', serverInfo);
-	});
-
 	//////ON DISCONNECTION////////////
 	socket.on('disconnect', function(_data){
 		var data = _data;
@@ -233,6 +227,10 @@ io.on('connection', function(socket){
 			if(serverInfo.clients[i] == data.playerSocketId){
 				console.log("Clear Client");
 				serverInfo.clients.splice(i, 1);
+				serverInfo.nOfClients--;
+				if(serverInfo.nOfClients <= 0){
+					serverInfo.nOfClients = 0;
+				}
 				// socket.broadcast.to(serverInfo.clientId).emit('you_disconnected');
 				// socket.broadcast.to(clientsInRooms[i].roomId).emit('opponent_disconnected');
 			}
