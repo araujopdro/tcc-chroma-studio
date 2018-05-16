@@ -222,7 +222,7 @@ io.on('connection', function(socket){
 
 	//////ON DISCONNECTION////////////
 	socket.on('disconnect', function(_data){
-		console.log('client disconnected: ' + _data);
+		console.log('client disconnected: '+ _data.playerSocketId);
 		for(var i = 0; i < serverInfo.clients.length; i++){
 			if(serverInfo.clients[i] == _data.playerSocketId){
 				serverInfo.clients.splice(i, 1);
