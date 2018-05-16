@@ -137,9 +137,8 @@ app.get("/api/users_by_score", function(req, res) {
 //////IO STUFF/////////////
 const io = socket(server);
 
+
 var serverInfo = {
-	"clientId": "id",
-	"nOfClients": 0,
 	"clients": []
 };
 
@@ -148,15 +147,15 @@ var rooms_status = [];
 
 io.on('connection', function(socket){
 	//////ON CONNECTION////////////
-	serverInfo.clientId = shortid.generate();
-	serverInfo.nOfClients++;
-	serverInfo.clients.push(serverInfo.clientId);
+	var clientId = shortid.generate();
 
-	console.log('client connected, broadcasting, id: ' + serverInfo.clientId);
+	serverInfo.clients.push(clientId);
+
+	console.log('client connected, broadcasting, id: ' + clientId);
 
 	//for(i = 0; i < serverInfo.nOfClients; i++){
 		//Send info just for the current Socket
-	//	socket.emit('server_info', serverInfo);
+	socket.emit('user_id', clientId);
 	//	console.log('send join info to new player');
 	//}
 	
@@ -220,6 +219,12 @@ io.on('connection', function(socket){
 	// 	io.to(_data.roomId).emit('place_trap', _data);
 	// });
 
+	socket.on('reconnect', function(_data){
+		var data = _data;
+		console.log("reco: "+data);
+		io.sockets.emit('server_info', serverInfo);
+	});
+
 	//////ON DISCONNECTION////////////
 	socket.on('disconnect', function(_data){
 		var data = _data;
@@ -228,10 +233,6 @@ io.on('connection', function(socket){
 			if(serverInfo.clients[i] == data.playerSocketId){
 				console.log("Clear Client");
 				serverInfo.clients.splice(i, 1);
-				serverInfo.nOfClients--;
-				if(serverInfo.nOfClients <= 0){
-					serverInfo.nOfClients = 0;
-				}
 				// socket.broadcast.to(serverInfo.clientId).emit('you_disconnected');
 				// socket.broadcast.to(clientsInRooms[i].roomId).emit('opponent_disconnected');
 			}
