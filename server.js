@@ -137,8 +137,9 @@ app.get("/api/users_by_score", function(req, res) {
 //////IO STUFF/////////////
 const io = socket(server);
 
-
 var serverInfo = {
+	"clientId": "id",
+	"nOfClients": 0,
 	"clients": []
 };
 
@@ -147,15 +148,15 @@ var rooms_status = [];
 
 io.on('connection', function(socket){
 	//////ON CONNECTION////////////
-	var clientId = shortid.generate();
-	
-	serverInfo.clients.push(clientId);
+	serverInfo.clientId = shortid.generate();
+	serverInfo.nOfClients++;
+	serverInfo.clients.push(serverInfo.clientId);
 
-	console.log('client connected, broadcasting, id: ' + clientId);
+	console.log('client connected, broadcasting, id: ' + serverInfo.clientId);
 
 	//for(i = 0; i < serverInfo.nOfClients; i++){
 		//Send info just for the current Socket
-	socket.emit('user_id', clientId);
+	//	socket.emit('server_info', serverInfo);
 	//	console.log('send join info to new player');
 	//}
 	
