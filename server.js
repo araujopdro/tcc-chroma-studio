@@ -138,25 +138,26 @@ app.get("/api/users_by_score", function(req, res) {
 const io = socket(server);
 
 var serverInfo = {
-	"clientId": "id",
-	"nOfClients": 0,
 	"clients": []
 };
+
+var client = {
+	"clientId": ""
+}
 
 var rooms = [];
 var rooms_status = [];
 
 io.on('connection', function(socket){
 	//////ON CONNECTION////////////
-	serverInfo.clientId = shortid.generate();
-	serverInfo.nOfClients++;
-	serverInfo.clients.push(serverInfo.clientId);
+	client.clientId = shortid.generate();
+	serverInfo.clients.push(clientId);
 
-	console.log('client connected, broadcasting, id: ' + serverInfo.clientId);
+	console.log('client connected, broadcasting, id: ' + client.clientId);
 
 	//for(i = 0; i < serverInfo.nOfClients; i++){
 		//Send info just for the current Socket
-	socket.emit('user_id', serverInfo);
+	socket.emit('user_id', client);
 	//	console.log('send join info to new player');
 	//}
 	
@@ -228,10 +229,6 @@ io.on('connection', function(socket){
 			if(serverInfo.clients[i] == data.playerSocketId){
 				console.log("Clear Client");
 				serverInfo.clients.splice(i, 1);
-				serverInfo.nOfClients--;
-				if(serverInfo.nOfClients <= 0){
-					serverInfo.nOfClients = 0;
-				}
 				// socket.broadcast.to(serverInfo.clientId).emit('you_disconnected');
 				// socket.broadcast.to(clientsInRooms[i].roomId).emit('opponent_disconnected');
 			}
