@@ -221,11 +221,10 @@ io.on('connection', function(socket){
 	// });
 
 	//////ON DISCONNECTION////////////
-	socket.on('disconnect', function(){
-		console.log('client disconnected: ' + serverInfo.clientId);
+	socket.on('disconnect', function(_data){
+		console.log('client disconnected: ' + _data);
 		for(var i = 0; i < serverInfo.clients.length; i++){
-			if(serverInfo.clients[i] == serverInfo.clientId){
-				console.log("Was In A Room - Notify Opponent");
+			if(serverInfo.clients[i] == _data.playerSocketId){
 				serverInfo.clients.splice(i, 1);
 				serverInfo.nOfClients--;
 				if(serverInfo.nOfClients <= 0){
@@ -235,7 +234,7 @@ io.on('connection', function(socket){
 				// socket.broadcast.to(clientsInRooms[i].roomId).emit('opponent_disconnected');
 			}
 		}
-		
+
 		socket.emit('server_info', serverInfo);
 	});
 	//////ON DISCONNECTION////////////
