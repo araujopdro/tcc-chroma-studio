@@ -161,7 +161,7 @@ io.on('connection', function(socket){
 	//}
 	
 	//Broadcast Emit to Everyone Connected
-	socket.emit('server_info', serverInfo);
+	io.sockets.emit('server_info', serverInfo);
 	//////////////////////////////
 
 	// socket.on('trap', function(_data){
@@ -236,7 +236,7 @@ io.on('connection', function(socket){
 				// socket.broadcast.to(clientsInRooms[i].roomId).emit('opponent_disconnected');
 			}
 		}
-		socket.emit('server_info', serverInfo);
+		io.sockets.emit('server_info', serverInfo);
 	});
 	//////ON DISCONNECTION////////////
 })
