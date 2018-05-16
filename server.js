@@ -138,125 +138,105 @@ app.get("/api/users_by_score", function(req, res) {
 const io = socket(server);
 
 var serverInfo = {
-	"clientId": "sid",
-	"nOfClients": 0
+	"clientId": "id",
+	"nOfClients": 0,
+	"clients": []
 };
 
 var rooms = [];
-var clientsInRooms = [];
 var rooms_status = [];
 
 io.on('connection', function(socket){
 	//////ON CONNECTION////////////
 	serverInfo.clientId = shortid.generate();
 	serverInfo.nOfClients++;
+	serverInfo.clients.push(serverInfo.clientId);
 
 	console.log('client connected, broadcasting, id: ' + serverInfo.clientId);
 
-	for(i = 0; i < serverInfo.nOfClients; i++){
+	//for(i = 0; i < serverInfo.nOfClients; i++){
 		//Send info just for the current Socket
-		socket.emit('server_info', serverInfo);
-		console.log('send join info to new player');
-	}
+	//	socket.emit('server_info', serverInfo);
+	//	console.log('send join info to new player');
+	//}
 	
 	//Broadcast Emit to Everyone Connected
-	socket.broadcast.emit('server_info', serverInfo);
+	socket.emit('server_info', serverInfo);
 	//////////////////////////////
 
-	socket.on('jump', function(_data){
-		console.log('Jump');
-		socket.broadcast.to(_data.roomId).emit('jump');
-	});
+	// socket.on('trap', function(_data){
+	// 	console.log('Trap: '+_data.trapType);
+	// 	var t = {"trap_type": _data.trapType};
+	// 	socket.broadcast.to(_data.roomId).emit('trap', t);
+	// });
 
-	socket.on('trap', function(_data){
-		console.log('Trap: '+_data.trapType);
-		var t = {"trap_type": _data.trapType};
-		socket.broadcast.to(_data.roomId).emit('trap', t);
-	});
 
-	socket.on('runner_hit_trap', function(_data){
-		console.log('runner is dead');
-		socket.broadcast.to(_data.roomId).emit('runner_is_dead');
-	});	
-
-	socket.on('runner_round', function(_data){
-		socket.broadcast.to(_data.roomId).emit('runner_round');
-		console.log('Runner Won');
-	});
-
-	socket.on('master_round', function(_data){
-		io.to(_data.roomId).emit('master_round');
-		console.log('Runner Won');
-	});
-
-	socket.on('room_manage', function(_data){
-		console.log("RoomManage");
-		var room_data;
-		var foundRoom = false;
-		for(var i = 0; i < rooms.length; i++){
-			if(rooms[i].clients.length < 2 && !foundRoom){
-				room_data = rooms[0];
-				foundRoom = true;
-			}
-		}
+	// socket.on('room_manage', function(_data){
+	// 	console.log("RoomManage");
+	// 	var room_data;
+	// 	var foundRoom = false;
+	// 	for(var i = 0; i < rooms.length; i++){
+	// 		if(rooms[i].clients.length < 2 && !foundRoom){
+	// 			room_data = rooms[0];
+	// 			foundRoom = true;
+	// 		}
+	// 	}
 		
-		if(!foundRoom){
-			console.log("Couldnt Find Room");
-			CreateRoom();
-		}else{
-			console.log("Join Room");
-		}
+	// 	if(!foundRoom){
+	// 		console.log("Couldnt Find Room");
+	// 		CreateRoom();
+	// 	}else{
+	// 		console.log("Join Room");
+	// 	}
 
-		room_data = rooms[rooms.length - 1];
+	// 	room_data = rooms[rooms.length - 1];
 
-		console.log(_data.clientId);
+	// 	console.log(_data.clientId);
 
-		room_data.clients.push(_data.playerId);
+	// 	room_data.clients.push(_data.playerId);
 
-		clientsInRooms.push({"clientId": _data.clientId, "roomId": room_data.roomId})
+	// 	clientsInRooms.push({"clientId": _data.clientId, "roomId": room_data.roomId})
 
-		socket.join(room_data.roomId);
+	// 	socket.join(room_data.roomId);
 		
-		console.log(room_data.roomId);
+	// 	console.log(room_data.roomId);
 
-		if(room_data.clients.length == 2 || port == 3000){
-			console.log("joinroom");
-			var timeInMs = Date.now();
-			console.log(timeInMs);
+	// 	if(room_data.clients.length == 2 || port == 3000){
+	// 		console.log("joinroom");
+	// 		var timeInMs = Date.now();
+	// 		console.log(timeInMs);
 
-			room_data.timeStarted = timeInMs;
-			io.to(room_data.roomId).emit('joinned_room', room_data);
-		}else{
-			console.log("host");
-			io.to(room_data.roomId).emit('host', room_data);
-		}
-	});
+	// 		room_data.timeStarted = timeInMs;
+	// 		io.to(room_data.roomId).emit('joinned_room', room_data);
+	// 	}else{
+	// 		console.log("host");
+	// 		io.to(room_data.roomId).emit('host', room_data);
+	// 	}
+	// });
 
-	socket.on('place_trap', function(_data){
-		console.log('place trap', JSON.stringify (_data));
-		io.to(_data.roomId).emit('place_trap', _data);
-	});
+
+	// socket.on('place_trap', function(_data){
+	// 	console.log('place trap', JSON.stringify (_data));
+	// 	io.to(_data.roomId).emit('place_trap', _data);
+	// });
 
 	//////ON DISCONNECTION////////////
 	socket.on('disconnect', function(){
-		console.log('client disconnected: '  + serverInfo.clientId);
-		for(var i = 0; i <clientsInRooms.length; i++){
-			if(clientsInRooms[i].clientId == serverInfo.clientId){
+		console.log('client disconnected: ' + serverInfo.clientId);
+		for(var i = 0; i < serverInfo.clients.length; i++){
+			if(serverInfo.clients[i] == serverInfo.clientId){
 				console.log("Was In A Room - Notify Opponent");
-				socket.broadcast.to(serverInfo.clientId).emit('you_disconnected');
-				socket.broadcast.to(clientsInRooms[i].roomId).emit('opponent_disconnected');
+				serverInfo.clients.splice(i, 1);
+				serverInfo.nOfClients--;
+				if(serverInfo.nOfClients <= 0){
+					serverInfo.nOfClients = 0;
+				}
+				// socket.broadcast.to(serverInfo.clientId).emit('you_disconnected');
+				// socket.broadcast.to(clientsInRooms[i].roomId).emit('opponent_disconnected');
 			}
 		}
-
-
-		serverInfo.nOfClients--;
-
-		if(serverInfo.nOfClients <= 0){
-			serverInfo.nOfClients = 0;
-			rooms = [];
-		}
-
-		socket.broadcast.emit('server_info', serverInfo);
+		
+		socket.emit('server_info', serverInfo);
 	});
 	//////ON DISCONNECTION////////////
 })
