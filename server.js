@@ -141,6 +141,11 @@ var serverInfo = {
 	"clients": []
 };
 
+var room = {
+	"roomId": "", 
+	"players": []
+};
+
 var client = {
 	"clientId": ""
 }
@@ -151,75 +156,51 @@ var rooms_status = [];
 io.on('connection', function(socket){
 	//////ON CONNECTION////////////
 	client.clientId = shortid.generate();
-	serverInfo.clients.push(clientId);
+	serverInfo.clients.push(client.clientId);
 
 	console.log('client connected, broadcasting, id: ' + client.clientId);
 
-	//for(i = 0; i < serverInfo.nOfClients; i++){
-		//Send info just for the current Socket
+	//Send info just for the current Socket
 	socket.emit('user_id', client);
-	//	console.log('send join info to new player');
-	//}
-	
 	//Broadcast Emit to Everyone Connected
 	io.sockets.emit('server_info', serverInfo);
+	
 	//////////////////////////////
 
-	// socket.on('trap', function(_data){
-	// 	console.log('Trap: '+_data.trapType);
-	// 	var t = {"trap_type": _data.trapType};
-	// 	socket.broadcast.to(_data.roomId).emit('trap', t);
-	// });
+	socket.on('room_manage', function(_data){
+		var data = _data;
+		if(rooms.length > 0){
+			for(var i = 0; i < rooms.length; i++){
+				if(rooms[i].players.length == 1){
+					rooms[i].players.push(data.playerSocketId);
 
+					socket.broadcast.to(rooms[i].players[0]).emit('room_info', rooms);
+					socket.broadcast.to(rooms[i].players[1]).emit('room_info', rooms);
+				}
+			}
+		}else{
+			var new_room = {};
+			new_room.roomId = "room" + shortid.generate();
+			new_room.players = [];
+			new_room.players.push(data.playerSocketId);
 
-	// socket.on('room_manage', function(_data){
-	// 	console.log("RoomManage");
-	// 	var room_data;
-	// 	var foundRoom = false;
-	// 	for(var i = 0; i < rooms.length; i++){
-	// 		if(rooms[i].clients.length < 2 && !foundRoom){
-	// 			room_data = rooms[0];
-	// 			foundRoom = true;
-	// 		}
-	// 	}
+			rooms.push(new_room);
+			socket.emit('room_info', new_room);
+		}
+	});
+
+	socket.on('reconnect', function(_data){
+		var data = _data;
+		client.clientId = data.playerSocketId;
+
+		console.log("recon: "+data.playerSocketId);
+
+		serverInfo.clients.push(client.clientId);
+
+		socket.emit('user_id', client);
 		
-	// 	if(!foundRoom){
-	// 		console.log("Couldnt Find Room");
-	// 		CreateRoom();
-	// 	}else{
-	// 		console.log("Join Room");
-	// 	}
-
-	// 	room_data = rooms[rooms.length - 1];
-
-	// 	console.log(_data.clientId);
-
-	// 	room_data.clients.push(_data.playerId);
-
-	// 	clientsInRooms.push({"clientId": _data.clientId, "roomId": room_data.roomId})
-
-	// 	socket.join(room_data.roomId);
-		
-	// 	console.log(room_data.roomId);
-
-	// 	if(room_data.clients.length == 2 || port == 3000){
-	// 		console.log("joinroom");
-	// 		var timeInMs = Date.now();
-	// 		console.log(timeInMs);
-
-	// 		room_data.timeStarted = timeInMs;
-	// 		io.to(room_data.roomId).emit('joinned_room', room_data);
-	// 	}else{
-	// 		console.log("host");
-	// 		io.to(room_data.roomId).emit('host', room_data);
-	// 	}
-	// });
-
-
-	// socket.on('place_trap', function(_data){
-	// 	console.log('place trap', JSON.stringify (_data));
-	// 	io.to(_data.roomId).emit('place_trap', _data);
-	// });
+		io.sockets.emit('server_info', serverInfo);
+	});
 
 	//////ON DISCONNECTION////////////
 	socket.on('disconnect', function(_data){
@@ -227,10 +208,7 @@ io.on('connection', function(socket){
 
 		for(var i = 0; i < serverInfo.clients.length; i++){
 			if(serverInfo.clients[i] == data.playerSocketId){
-				console.log("Clear Client");
 				serverInfo.clients.splice(i, 1);
-				// socket.broadcast.to(serverInfo.clientId).emit('you_disconnected');
-				// socket.broadcast.to(clientsInRooms[i].roomId).emit('opponent_disconnected');
 			}
 		}
 		io.sockets.emit('server_info', serverInfo);
