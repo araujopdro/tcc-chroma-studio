@@ -151,11 +151,12 @@ var client = {
 }
 
 var rooms = [];
-var rooms_status = [];
+var room_not_found;
 
 io.on('connection', function(socket){
 	//////ON CONNECTION////////////
-	client.clientId = shortid.generate();
+	//client.clientId = shortid.generate();
+	client.clientId = socket.id;
 	serverInfo.clients.push(client.clientId);
 
 	console.log('client connected, broadcasting, id: ' + client.clientId);
@@ -169,24 +170,40 @@ io.on('connection', function(socket){
 
 	socket.on('room_manage', function(_data){
 		var data = _data;
-		if(rooms.length > 0){
-			for(var i = 0; i < rooms.length; i++){
-				if(rooms[i].players.length == 1){
-					rooms[i].players.push(data.playerSocketId);
 
-					socket.broadcast.to(rooms[i].players[0]).emit('room_info', rooms);
-					socket.broadcast.to(rooms[i].players[1]).emit('room_info', rooms);
+		if(rooms.length != 0){
+			for(var i = 0; i < rooms.length; i++){
+				if(rooms[i].players.length == 1 && !room_not_found){
+					rooms[i].players.push(data.playerSocketId);
+					socket.join(rooms[i].roomId);
+					
+					room_not_found = true;
+					io.to(rooms[i].roomId).emit('room_info', rooms[i]);
+					break;
 				}
+				room_not_found = false;
 			}
-		}else{
+		}
+
+		if(!room_not_found){
 			var new_room = {};
 			new_room.roomId = "room" + shortid.generate();
 			new_room.players = [];
 			new_room.players.push(data.playerSocketId);
+			
+			socket.join(new_room.roomId);
 
 			rooms.push(new_room);
-			socket.emit('room_info', new_room);
+			io.to(new_room.roomId).emit('room_info', new_room);
+			room_not_found = false;
 		}
+	});
+
+	socket.on('send_game_data', function(_data){
+		var data = _data;
+		console.log("data to room: "+data.curRoomId);
+		console.log("data to room: "+data.traps);
+		socket.to(data.curRoomId).emit('receive_game_data', data);
 	});
 
 	socket.on('reconnect', function(_data){
@@ -216,16 +233,6 @@ io.on('connection', function(socket){
 	//////ON DISCONNECTION////////////
 })
 
-function CreateRoom(){
-	console.log("Create Room");
-
-	var room_data = {};
-
-	room_data.roomId = "ROOM-"+shortid.generate();
-	room_data.clients = new Array();
-	rooms.push(room_data);
-}
-
 var sort_by = function(field, reverse, primer){
 
    var key = primer ? 
@@ -238,55 +245,3 @@ var sort_by = function(field, reverse, primer){
        return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
      } 
 }
-
-// io.on('connection', (socket) => {
-//   	console.log('Client connected ' + socket.id);
-//   	socket.on('disconnect', () => console.log('Client disconnected '+socket.id));
-
-//   	socket.on('get_id', function(data){
-// 		console.log(data);
-// 		io.sockets.emit('get_id', data);
-// 	}); 		Márcia .. parcela dese 600 + 3 x 366,09
-// });
-
-/*io.on('connection', function(socket){
-	console.log('Connect socket', socket.id);
-
-	// socket.on('pudim', function(data){
-	// 	console.log('pudim stuff');
-	// 	console.log(data);
-	// 	io.sockets.emit('pudim', data);
-	// });
-});*/
-
-/*var io = require('socket.io')(process.env.PORT || 3000);
-var shortid = require('shortid')
-
-console.log('server started');
-
-var playerCount = 0;
-
-io.on('connection', function(socket){
-	var thisClientId = shortid.generate();
-
-	console.log('client connected, broadcasting, id: ' + thisClientId);
-
-	socket.broadcast.emit('join');
-	playerCount++;
-
-	for(i = 0; i < playerCount; i++){
-		socket.emit('join');
-		console.log('send join info to new player');
-	}
-
-	socket.on('place_trap', function(){
-		console.log('place trap');
-		socket.broadcast.emit('place_trap');
-	});
-
-	socket.on('disconnect', function(){
-		console.log('client disconnected');
-		playerCount--;
-	});
-
-})*/
